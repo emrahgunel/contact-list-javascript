@@ -11,8 +11,51 @@ const kisiListesi = document.querySelector('.kisi-listesi');
 // add event listeners
 
 form.addEventListener('submit', kaydet);
+kisiListesi.addEventListener('click', kisiIslemleriniYap); // select the wholebody of each contact elements
+
+function kisiIslemleriniYap(event) {
+     //console.log(event.target);
+     if (event.target.classList.contains('fa-trash')) {
+         const silinecekTr = event.target.parentElement.parentElement.parentElement; //we need this to delet from local storage
+         const silinecekMail = event.target.parentElement.parentElement.previousElementSibling.textContent; //selecet mail element
+         rehberdenSil(silinecekTr, silinecekMail);
+
+         rehberdenSil(event.target.parentElement.parentElement.parentElement);
+     } else if (event.target.classList.contains('fa-pen-to-square')) {
+         console.log('Guncelle'); 
+         document.querySelector('.kaydetGuncelle').value = 'Edit' ;
+         const secilenTR = event.target.parentElement.parentElement.parentElement;
+         const guncellenecekMail = secilenTR.cell[2].textContent;
+         ad.value = secilenTR.cell[0].textContent;
+         soyad.value = secilenTR.cell[1].textContent;
+         mail.value = secilenTR.cell[2].textContent;
+
+         secilenSatir = secilenTR;
+
+     }
+}
+
+function rehberdenSil(silinecekTrElement, silinecekMail) {
+    silinecekTrElement.remove();
+    //delete from local storage based on mail
+
+    tumKisilerDizesi.forEach((kisi, index) => {
+        if (kisi.mail === silinecekMail) {
+            tumKisilerDizesi.splice(index, 1 );
+        }
+    });
+    console.log('deleted');
+    console.log(tumKisilerDizesi);
+
+     
+}
 
 // create an array for all contacts to save in local storage
+
+const tumKisilerDizesi = [];
+let secilenSatir = undefined;  // first array to edit contact list
+
+
 
 function kaydet(e) {
     e.preventDefault();
@@ -26,7 +69,13 @@ function kaydet(e) {
    const sonuc = verileriKontrolEt(eklenecekKisi);
 
    if (sonuc.durum) {
-       kisiyiEkle(eklenecekKisi);
+       // if statement to edit contacts  
+       if (secilenSatir) {
+           //edit the contact list
+       } else {
+        kisiyiEkle(eklenecekKisi); 
+       }
+       
        bilgiOlustur(sonuc.mesaj, sonuc.durum)
    }else {
        bilgiOlustur(sonuc.mesaj, sonuc.durum) // print the message if any input field was empty
@@ -45,6 +94,8 @@ function kisiyiEkle(eklenecekKisi) {
         <button class="btn btn--delete "><i class="fa-solid fa-trash"></i> </button>
     </td>`;
     kisiListesi.appendChild(olusturulanTrElement); 
+    tumKisilerDizesi.push(eklenecekKisi); 
+    console.log(tumKisilerDizesi);
 }
 
 // check the input values if they are empty or email format inside objects above
@@ -52,7 +103,7 @@ function verileriKontrolEt(kisi) {
      //usage of "in" objects
      for (const deger in kisi) {
          if (kisi[deger]) {
-             console.log(kisi[deger]);
+             //console.log(kisi[deger]);
          }else {
              const sonuc = {
                  durum: false,
